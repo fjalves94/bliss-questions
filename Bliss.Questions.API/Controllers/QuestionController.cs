@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Bliss.Questions.API.DTO;
 using Bliss.Questions.API.Interfaces;
 using Bliss.Questions.API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -19,25 +20,9 @@ namespace Bliss.Questions.API.Controllers
         }
 
         [HttpGet]
-        public List<Question> Get() 
+        public List<Question> Get([FromQuery] string filter, [FromQuery] int limit, [FromQuery] int offset) 
         {
-            return new List<Question>()
-            { 
-                new Question()
-                {
-                    ImageUrl = "",
-                    Choices = new List<Choice>() 
-                    {
-                        new Choice() 
-                        {
-                            Text = "C#",
-                            Votes = 2000
-                        }
-                    },
-                    ThumbUrl = "",
-                    Text = ""
-                }
-            };
+            return (List<Question>)_questionService.Get(filter, limit, offset);
         }
 
         [HttpGet("{id}")]
@@ -54,15 +39,15 @@ namespace Bliss.Questions.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public Question Edit([FromBody] Question question)
+        public void Edit([FromRoute] string id, [FromBody] Question question)
         {
-            return question;
+            _questionService.Edit(id, question);
         }
 
         [HttpPut("{id}/vote")]
-        public string Vote() 
+        public void Vote([FromRoute] string id, [FromBody] VoteDTO voteDto) 
         {
-            return "OK";
+            _questionService.Vote(id, voteDto.choice);
         }
     }
 }

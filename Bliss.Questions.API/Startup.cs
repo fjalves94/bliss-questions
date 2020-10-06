@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Bliss.Questions.API.Converters;
 using Bliss.Questions.API.Interfaces;
 using Bliss.Questions.API.Models;
 using Bliss.Questions.API.Services;
@@ -25,14 +23,15 @@ namespace Bliss.Questions.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
-            services.AddScoped<IQuestionService, QuestionService>();             
+            services.Configure<SendgridSettings>(Configuration.GetSection("SendgridSettings"));
+            services.AddScoped<IQuestionService, QuestionService>();  
+            services.AddScoped<IShareService, ShareService>();           
             services.AddApiVersioning();
-            services
-                .AddControllers()
-                .AddNewtonsoftJson(config => 
-                {
-                    config.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-                });
+            services.AddControllers().AddNewtonsoftJson(config => 
+            {
+                config.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="MongoDB" Version="1.7.1.4791" />
+    <PackageReference Include="SendGrid" Version="9.21.0" />
     <PackageReference Include="System.IO.Packaging" Version="4.7.0" />
   </ItemGroup>
 

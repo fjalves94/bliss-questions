@@ -1,10 +1,11 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bliss.Questions.API.Interfaces;
 using Bliss.Questions.API.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 
 namespace Bliss.Questions.API.Services
 {
@@ -28,24 +29,46 @@ namespace Bliss.Questions.API.Services
             return question;
         }
 
-        public void Edit(IQuestion question)
+        public void Edit(string id, IQuestion question)
         {
+            var query = Query.EQ("_id", new ObjectId(id));
+            var update = Update<Question>
+                .Set(q => q.Text, question.Text)
+                .Set(q => q.ImageUrl, question.ImageUrl)
+                .Set(q => q.ThumbUrl, question.ThumbUrl)
+                .Set(q => q.Choices, question.Choices);
+            _collection.Update(query, update);
         }
 
         public IQuestion GetOne(string id)
         {
-            var query = MongoDB.Driver.Builders.Query.EQ("_id", new ObjectId(id));
+            var query = Query.EQ("_id", new ObjectId(id));
             return _collection.FindOne(query);
         }
 
         public IEnumerable<IQuestion> Get(string filter, int limit, int offset)
         {
-            throw new NotImplementedException();
+            if (filter == null) filter = "";
+            var like = new BsonRegularExpression($"/{filter.Replace("?", "\\?")}/i");
+            var query = Query.Or(
+                Query.Matches("Text", like),
+                Query.Matches("Choices.Text", like)
+            );
+            return _collection
+                .Find(query)
+                .SetLimit(limit)
+                .SetSkip(offset)
+                .ToList();
         }
 
-        public void Vote(string questionId, string choice)
+        public void Vote(string id, string choice)
         {
-            throw new NotImplementedException();
+            var query = Query.And(
+                Query.EQ("_id", new ObjectId(id)),
+                Query.EQ("Choices.Text", choice)
+            );
+            var update = Update.Inc("Choices.$.Votes", 1);
+            _collection.Update(query, update);
         }
     }
 }

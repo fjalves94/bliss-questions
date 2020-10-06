@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Bliss.Questions.API.Converters;
 using Bliss.Questions.API.Interfaces;
+using Bliss.Questions.API.Serializers;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
@@ -30,6 +31,7 @@ namespace Bliss.Questions.API.Models
         [Required]
         [MinLength(2)]
         [JsonConverter(typeof(ChoiceJsonConverter))]
+        [BsonSerializer(typeof(ConcreteTypeSerializer<IEnumerable<IChoice>, List<Choice>>))]
         public IEnumerable<IChoice> Choices { get; set; }
 
         [JsonProperty("published_at")]
