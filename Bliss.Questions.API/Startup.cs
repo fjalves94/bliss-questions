@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Bliss.Questions.API.Interfaces;
+using Bliss.Questions.API.Models;
+using Bliss.Questions.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Bliss.Questions.API
 {
@@ -25,7 +22,16 @@ namespace Bliss.Questions.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
+            services.Configure<SendgridSettings>(Configuration.GetSection("SendgridSettings"));
+            services.AddScoped<IQuestionService, QuestionService>();  
+            services.AddScoped<IShareService, ShareService>();           
+            services.AddApiVersioning();
+            services.AddControllers().AddNewtonsoftJson(config => 
+            {
+                config.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,11 +43,8 @@ namespace Bliss.Questions.API
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
